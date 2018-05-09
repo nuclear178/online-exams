@@ -215,4 +215,10 @@ class SiteController extends Controller
             'model' => $model,
         ]);
     }
+
+    public function actionTest()
+    {
+        var_dump(Yii::$app->authManager);
+        return $this->renderPartial('index');
+    }
 }
