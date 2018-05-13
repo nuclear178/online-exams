@@ -75,9 +75,10 @@ class TestController extends Controller
     /**
      * Creates a new Test model.
      * If creation is successful, the browser will be redirected to the 'view' page.
+     * @param int $disciplineId
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate(int $disciplineId = null)
     {
         $model = new Test();
 
@@ -90,7 +91,8 @@ class TestController extends Controller
 
         return $this->render('create', [
             'model' => $model,
-            'disciplineNames' => Discipline::getNames(),
+            'disciplineNames' => ($disciplineId === null) ? Discipline::getNames()
+                : [$disciplineId => Discipline::findOne($disciplineId)->name],
         ]);
     }
 

@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php if (Yii::$app->getUser()->can('teacher')): ?>
         <p>
-            <?= Html::a('Create Test', ['create'], ['class' => 'btn btn-success']) ?>
+            <?= Html::a('Добавить тест', ['create'], ['class' => 'btn btn-success']) ?>
         </p>
     <?php endif; ?>
 

@@ -23,6 +23,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     'method' => 'post',
                 ],
             ]) ?>
+            <?= Html::a('Добавить тест', ['test/create', 'disciplineId' => $discipline->id],
+                ['class' => 'btn btn-success']) ?>
         </p>
     <?php endif; ?>
 
