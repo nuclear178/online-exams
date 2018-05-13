@@ -6,10 +6,10 @@ use yii\helpers\Html;
 /* @var $model common\models\Test */
 /* @var $disciplineNames string[] */
 
-$this->title = 'Update Test: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Tests', 'url' => ['index']];
+$this->title = 'Редактировать тест: ' . $model->name;
+$this->params['breadcrumbs'][] = ['label' => 'Тесты', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = 'Редактировать';
 ?>
 <div class="test-update">
 

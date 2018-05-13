@@ -13,6 +13,7 @@ use yii\db\ActiveRecord;
  * @property int $question_id
  *
  * @property UserTest $userTest
+ * @property int $testId
  * @property Question $question
  */
 class UserTestResponse extends ActiveRecord
@@ -95,5 +96,15 @@ class UserTestResponse extends ActiveRecord
     public static function find()
     {
         return new UserTestResponseQuery(get_called_class());
+    }
+
+    public function isCorrect(): bool
+    {
+        return $this->question->correct_option == $this->answer;
+    }
+
+    public function getTestId(): int
+    {
+        return $this->userTest->test_id;
     }
 }

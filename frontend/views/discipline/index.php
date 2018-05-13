@@ -6,16 +6,18 @@ use yii\widgets\ListView;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Disciplines';
+$this->title = 'Предметы';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="discipline-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Create Discipline', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+    <?php if (Yii::$app->getUser()->can('teacher')): ?>
+        <p>
+            <?= Html::a('Добавить предмет', ['create'], ['class' => 'btn btn-success']) ?>
+        </p>
+    <?php endif; ?>
 
     <?= ListView::widget([
         'dataProvider' => $dataProvider,

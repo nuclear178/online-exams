@@ -3,6 +3,7 @@
 namespace frontend\controllers;
 
 use common\models\Discipline;
+use common\models\Question;
 use common\models\Test;
 use common\models\UserTestResponse;
 use common\services\UserTestingService;
@@ -140,7 +141,7 @@ class TestController extends Controller
         if ($this->service->isNowPassingTest()) {
 
             //user is now passing another test
-            if ($this->service->anotherTestIsPassed($testId)) {
+            if ($this->service->anotherTestIsPassingNow($testId)) {
                 return $this->render('already_passing_message', [
                     'newTestId' => $testId,
                     'oldTest' => $this->service->getNowPassingTest()->test
@@ -149,19 +150,19 @@ class TestController extends Controller
 
             //continue passing current test
             if ($this->service->hasUnansweredQuestions()) {
-
                 $nextQuestion = $this->service->prepareNextQuestion();
 
-                return $this->redirect([
-                    'test/question',
-                    'responseId' => $nextQuestion->id,
-                ]);
+                return $this->redirect(['test/question', 'responseId' => $nextQuestion->id]);
             }
 
             //show results if there are no questions left
-            return $this->render('results');
+            $this->service->completeCurrentTest();
+            return $this->redirect(['test/result', 'testId' => $testId]);
         }
 
+        if ($this->service->alreadyPassedTest($testId)) {
+            return $this->redirect(['test/result', 'testId' => $testId]);
+        }
 
         $this->service->beginTest($testId);
         return $this->redirect(['test/pass', 'testId' => $testId]);
@@ -196,10 +197,21 @@ class TestController extends Controller
         $response = UserTestResponse::findOne($responseId);
 
         if ($response->load(Yii::$app->request->post()) && $response->save()) {
-            return $this->redirect(['test/pass', 'testId' => $response->userTest->test->id]);
+            return $this->redirect(['test/pass', 'testId' => $response->testId]);
         }
 
         return $this->render('response_form', ['model' => UserTestResponse::findOne($responseId)]);
+    }
+
+    public function actionResult(int $testId)
+    {
+        $model = $this->findModel($testId);
+
+        return $this->render('results', [
+            'score' => $this->service->getScore($testId),
+            'test' => $model,
+            'max' => Question::find()->where(['test_id' => $testId])->count(),
+        ]);
     }
 
     /**

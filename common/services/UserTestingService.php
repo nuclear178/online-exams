@@ -105,8 +105,31 @@ class UserTestingService
             ->one();
     }
 
-    public function anotherTestIsPassed(int $testId): bool
+    public function alreadyPassedTest(int $testId): bool
+    {
+        return UserTest::find()
+            ->where(['user_id' => $this->userId])
+            ->andWhere(['test_id' => $testId])->exists();
+    }
+
+    public function anotherTestIsPassingNow(int $testId): bool
     {
         return $this->getNowPassingTest()->test->id !== $testId;
+    }
+
+    public function getScore(int $testId): int
+    {
+        $responses = UserTest::find()
+            ->where(['user_id' => $this->userId])
+            ->andWhere(['test_id' => $testId])
+            ->one()->responses;
+
+        return array_reduce($responses, function (int $score, UserTestResponse $response) {
+            if ($response->isCorrect()) {
+                return $score + 1;
+            }
+            return $score;
+        }, 0);
+
     }
 }

@@ -8,19 +8,18 @@ use yii\helpers\Url;
 /* @var $relatedTests common\models\Test[] */
 
 $this->title = $discipline->name;
-$this->params['breadcrumbs'][] = ['label' => 'Disciplines', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Предметы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="discipline-view">
 
-    <!-- TODO :: !can() -->
-    <?php if (!Yii::$app->getUser()->can('teacher')): ?>
+    <?php if (Yii::$app->getUser()->can('teacher')): ?>
         <p>
-            <?= Html::a('Update', ['update', 'id' => $discipline->id], ['class' => 'btn btn-primary']) ?>
-            <?= Html::a('Delete', ['delete', 'id' => $discipline->id], [
+            <?= Html::a('Редактировать', ['update', 'id' => $discipline->id], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('Удалить', ['delete', 'id' => $discipline->id], [
                 'class' => 'btn btn-danger',
                 'data' => [
-                    'confirm' => 'Are you sure you want to delete this item?',
+                    'confirm' => 'Вы действительно желаете удалить предмет? Все связанные тесты, а также результаты прохождения будут удалены',
                     'method' => 'post',
                 ],
             ]) ?>
@@ -34,5 +33,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php foreach ($relatedTests as $test): ?>
         <?= Html::a($test->name, Url::to(['test/view', 'id' => $test->id])) ?>
+        <br>
     <?php endforeach; ?>
 </div>
