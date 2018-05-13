@@ -31,7 +31,7 @@ class Discipline extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'description'], 'required'],
+            [['name', 'description'], 'required', 'message' => '{attribute} не должно быть пустым.'],
             [['description'], 'string'],
             [['slug', 'name'], 'string', 'max' => 255],
         ];

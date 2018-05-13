@@ -35,7 +35,7 @@ class Test extends ActiveRecord
     public function rules()
     {
         return [
-            [['discipline_id', 'name', 'description'], 'required'],
+            [['discipline_id', 'name', 'description'], 'required', 'message' => '{attribute} не должно быть пустым.'],
             [['discipline_id', 'author_id', 'duration'], 'integer'],
             [['description'], 'string'],
             [['name'], 'string', 'max' => 255],
