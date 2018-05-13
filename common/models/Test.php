@@ -12,10 +12,12 @@ use yii\db\ActiveRecord;
  * @property int $author_id
  * @property string $name
  * @property string $description
+ * @property int $duration
  *
  * @property User $author
  * @property Discipline $discipline
  * @property Question[] $questions
+ * @property int $durationMillis
  */
 class Test extends ActiveRecord
 {
@@ -34,7 +36,7 @@ class Test extends ActiveRecord
     {
         return [
             [['discipline_id', 'name', 'description'], 'required'],
-            [['discipline_id', 'author_id'], 'integer'],
+            [['discipline_id', 'author_id', 'duration'], 'integer'],
             [['description'], 'string'],
             [['name'], 'string', 'max' => 255],
             [
@@ -63,6 +65,7 @@ class Test extends ActiveRecord
             'discipline_id' => 'Предмет',
             'name' => 'Тема',
             'description' => 'Описание',
+            'duration' => 'Длительность',
         ];
     }
 
@@ -97,5 +100,13 @@ class Test extends ActiveRecord
     public static function find()
     {
         return new TestQuery(get_called_class());
+    }
+
+    /**
+     * @return int
+     */
+    public function getDurationMillis(): int
+    {
+        return $this->duration * 60 * 1000;
     }
 }

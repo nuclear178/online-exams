@@ -4,10 +4,13 @@ namespace frontend\controllers;
 
 use common\models\Discipline;
 use common\models\Test;
+use common\models\UserTestResponse;
+use common\services\UserTestingService;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -15,6 +18,16 @@ use yii\web\NotFoundHttpException;
  */
 class TestController extends Controller
 {
+    /**
+     * @var UserTestingService $service
+     */
+    protected $service;
+
+    public function init()
+    {
+        $this->service = new UserTestingService(Yii::$app->getUser()->getId());
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -116,6 +129,77 @@ class TestController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    /**
+     * @param $testId
+     * @return string|\yii\web\Response
+     */
+    public function actionPass($testId)
+    {
+        if ($this->service->isNowPassingTest()) {
+
+            //user is now passing another test
+            if ($this->service->anotherTestIsPassed($testId)) {
+                return $this->render('already_passing_message', [
+                    'newTestId' => $testId,
+                    'oldTest' => $this->service->getNowPassingTest()->test
+                ]);
+            }
+
+            //continue passing current test
+            if ($this->service->hasUnansweredQuestions()) {
+
+                $nextQuestion = $this->service->prepareNextQuestion();
+
+                return $this->redirect([
+                    'test/question',
+                    'responseId' => $nextQuestion->id,
+                ]);
+            }
+
+            //show results if there are no questions left
+            return $this->render('results');
+        }
+
+
+        $this->service->beginTest($testId);
+        return $this->redirect(['test/pass', 'testId' => $testId]);
+    }
+
+    /**
+     * @param int $nextTestId
+     * @return \yii\web\Response
+     * @throws ForbiddenHttpException
+     */
+    public function actionComplete(int $nextTestId = null)
+    {
+        if (!$this->service->isNowPassingTest()) {
+            throw new ForbiddenHttpException('No test is passed at this moment!');
+        }
+
+        $this->service->completeCurrentTest();
+
+        if ($nextTestId !== null) {
+            return $this->redirect(['test/pass', 'testId' => $nextTestId]);
+        }
+
+        return $this->goHome();
+    }
+
+    /**
+     * @param int $responseId
+     * @return string|\yii\web\Response
+     */
+    public function actionQuestion(int $responseId)
+    {
+        $response = UserTestResponse::findOne($responseId);
+
+        if ($response->load(Yii::$app->request->post()) && $response->save()) {
+            return $this->redirect(['test/pass', 'testId' => $response->userTest->test->id]);
+        }
+
+        return $this->render('response_form', ['model' => UserTestResponse::findOne($responseId)]);
     }
 
     /**
