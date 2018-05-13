@@ -20,6 +20,7 @@ use yii\web\IdentityInterface;
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
+ * @property string $authKey
  * @property string $password write-only password
  */
 class User extends ActiveRecord implements IdentityInterface
@@ -46,13 +47,13 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    public function afterSave($insert, $changedAttributes)
+    /*public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
         $auth = Yii::$app->authManager;
         $student = $auth->getRole('student'); // Получаем роль student
         $auth->assign($student, $this->id);
-    }
+    }*/
 
     /**
      * {@inheritdoc}
@@ -166,6 +167,7 @@ class User extends ActiveRecord implements IdentityInterface
      * Generates password hash from password and sets it to the model
      *
      * @param string $password
+     * @throws \yii\base\Exception
      */
     public function setPassword($password)
     {

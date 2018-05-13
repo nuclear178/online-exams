@@ -36,7 +36,8 @@ class Test extends ActiveRecord
     {
         return [
             [['discipline_id', 'name', 'description'], 'required', 'message' => '{attribute} не должно быть пустым.'],
-            [['discipline_id', 'author_id', 'duration'], 'integer'],
+            [['discipline_id', 'author_id'], 'integer'],
+            [['duration'], 'integer', 'min' => 3, 'message' => 'Тест должен длиться не менее {min}-х минут'],
             [['description'], 'string'],
             [['name'], 'string', 'max' => 255],
             [

@@ -149,12 +149,18 @@ class SiteController extends Controller
      * Signs user up.
      *
      * @return mixed
+     * @throws \Exception
      */
     public function actionSignup()
     {
         $model = new SignupForm();
         if ($model->load(Yii::$app->request->post())) {
             if ($user = $model->signup()) {
+
+                $authManager = Yii::$app->authManager;
+                $role = $authManager->getRole($model->role);
+                $authManager->assign($role, $user->id);
+
                 if (Yii::$app->getUser()->login($user)) {
                     return $this->goHome();
                 }
