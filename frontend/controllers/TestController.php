@@ -20,13 +20,13 @@ use yii\web\NotFoundHttpException;
 class TestController extends Controller
 {
     /**
-     * @var UserTestingService $service
+     * @var UserTestingService $testingService
      */
-    protected $service;
+    protected $testingService;
 
     public function init()
     {
-        $this->service = new UserTestingService(Yii::$app->getUser()->getId());
+        $this->testingService = new UserTestingService(Yii::$app->getUser()->getId());
     }
 
     /**
@@ -140,33 +140,33 @@ class TestController extends Controller
      */
     public function actionPass($testId)
     {
-        if ($this->service->isNowPassingTest()) {
+        if ($this->testingService->isNowPassingTest()) {
 
             //user is now passing another test
-            if ($this->service->anotherTestIsPassingNow($testId)) {
+            if ($this->testingService->anotherTestIsPassingNow($testId)) {
                 return $this->render('already_passing_message', [
                     'newTestId' => $testId,
-                    'oldTest' => $this->service->getNowPassingTest()->test
+                    'oldTest' => $this->testingService->getNowPassingTest()->test
                 ]);
             }
 
             //continue passing current test
-            if ($this->service->hasUnansweredQuestions()) {
-                $nextQuestion = $this->service->prepareNextQuestion();
+            if ($this->testingService->hasUnansweredQuestions()) {
+                $nextQuestion = $this->testingService->prepareNextQuestion();
 
                 return $this->redirect(['test/question', 'responseId' => $nextQuestion->id]);
             }
 
             //show results if there are no questions left
-            $this->service->completeCurrentTest();
+            $this->testingService->completeCurrentTest();
             return $this->redirect(['test/result', 'testId' => $testId]);
         }
 
-        if ($this->service->alreadyPassedTest($testId)) {
+        if ($this->testingService->alreadyPassedTest($testId)) {
             return $this->redirect(['test/result', 'testId' => $testId]);
         }
 
-        $this->service->beginTest($testId);
+        $this->testingService->beginTest($testId);
         return $this->redirect(['test/pass', 'testId' => $testId]);
     }
 
@@ -177,11 +177,11 @@ class TestController extends Controller
      */
     public function actionComplete(int $nextTestId = null)
     {
-        if (!$this->service->isNowPassingTest()) {
+        if (!$this->testingService->isNowPassingTest()) {
             throw new ForbiddenHttpException('No test is passed at this moment!');
         }
 
-        $this->service->completeCurrentTest();
+        $this->testingService->completeCurrentTest();
 
         if ($nextTestId !== null) {
             return $this->redirect(['test/pass', 'testId' => $nextTestId]);
@@ -205,12 +205,17 @@ class TestController extends Controller
         return $this->render('response_form', ['model' => UserTestResponse::findOne($responseId)]);
     }
 
+    /**
+     * @param int $testId
+     * @return string
+     * @throws NotFoundHttpException
+     */
     public function actionResult(int $testId)
     {
         $model = $this->findModel($testId);
 
         return $this->render('results', [
-            'score' => $this->service->getScore($testId),
+            'score' => $this->testingService->getScore($testId),
             'test' => $model,
             'max' => Question::find()->where(['test_id' => $testId])->count(),
         ]);
@@ -223,7 +228,7 @@ class TestController extends Controller
      * @return Test the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected function findModel($id): Test
     {
         if (($model = Test::findOne($id)) !== null) {
             return $model;
